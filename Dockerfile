@@ -6,6 +6,7 @@ WORKDIR /home/node/packages/cli
 
 # Install custom npm packages
 RUN pnpm install jsdom
+RUN pnpm install node-fetch
 
 ENTRYPOINT []
 
