@@ -23,23 +23,40 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 
 WORKDIR /home/node/packages/cli
 
-# Install custom npm packages
-RUN pnpm install jsdom
-RUN pnpm install node-fetch
-# Install @notionhq/notion-mcp-server globally
-RUN npx -y @notionhq/notion-mcp-server
+# --- Install custom npm packages ---
+RUN pnpm install jsdom \
+    && pnpm install node-fetch
 
-# Install n8n-nodes-puppeteer in a permanent location
+# --- Install Chrome dependencies and Chromium ---
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    glib \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    udev \
+    ttf-liberation \
+    font-noto-emoji
+
+# --- Puppeteer environment vars ---
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# --- Install n8n-nodes-puppeteer in permanent location ---
 RUN mkdir -p /opt/n8n-custom-nodes && \
     cd /opt/n8n-custom-nodes && \
     npm install n8n-nodes-puppeteer && \
     chown -R node:node /opt/n8n-custom-nodes
 
-# Custom entrypoint script
+# --- Copy your entrypoint ---
 COPY ./entrypoint.sh /
 RUN chmod +x /entrypoint.sh && \
     chown node:node /entrypoint.sh
 
 USER node
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT []
+CMD ["/entrypoint.sh"]
