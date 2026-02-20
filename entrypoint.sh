@@ -35,7 +35,17 @@ fi
 # ---------- Puppeteer defaults (if not set via Dockerfile/env) ----------
 : "${PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:=true}"
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
-: "${PUPPETEER_EXECUTABLE_PATH:=/usr/bin/chromium-browser}"
+
+if [ -z "${PUPPETEER_EXECUTABLE_PATH:-}" ]; then
+  if [ -x "/usr/bin/chromium-browser" ]; then
+    PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium-browser"
+  elif [ -x "/usr/bin/chromium" ]; then
+    PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium"
+  else
+    PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium-browser"
+  fi
+fi
+
 export PUPPETEER_EXECUTABLE_PATH
 
 # ---------- Register custom nodes path ----------
