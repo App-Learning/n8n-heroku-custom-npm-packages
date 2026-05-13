@@ -32,22 +32,6 @@ if [ -n "$DATABASE_URL" ]; then
   export DB_POSTGRESDB_PASSWORD="$N8N_DB_PASSWORD"
 fi
 
-# ---------- Puppeteer defaults (if not set via Dockerfile/env) ----------
-: "${PUPPETEER_SKIP_CHROMIUM_DOWNLOAD:=true}"
-export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
-
-if [ -z "${PUPPETEER_EXECUTABLE_PATH:-}" ]; then
-  if [ -x "/usr/bin/chromium-browser" ]; then
-    PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium-browser"
-  elif [ -x "/usr/bin/chromium" ]; then
-    PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium"
-  else
-    PUPPETEER_EXECUTABLE_PATH="/usr/bin/chromium-browser"
-  fi
-fi
-
-export PUPPETEER_EXECUTABLE_PATH
-
 # ---------- Register custom nodes path ----------
 if [ -n "$N8N_CUSTOM_EXTENSIONS" ]; then
   export N8N_CUSTOM_EXTENSIONS="/opt/n8n-custom-nodes:${N8N_CUSTOM_EXTENSIONS}"
@@ -58,25 +42,10 @@ fi
 # ---------- Diagnostics banner ----------
 print_banner() {
   echo "----------------------------------------"
-  echo "n8n Puppeteer Node - Environment Details"
+  echo "n8n Environment Details"
   echo "----------------------------------------"
   command -v node >/dev/null 2>&1 && echo "Node.js version: $(node -v)" || echo "Node.js not found"
   command -v n8n  >/dev/null 2>&1 && echo "n8n version: $(n8n --version)" || echo "n8n not found"
-
-  CHROME_VERSION=$("$PUPPETEER_EXECUTABLE_PATH" --version 2>/dev/null || echo "Chromium not found")
-  echo "Chromium version: $CHROME_VERSION"
-
-  PUPPETEER_PATH="/opt/n8n-custom-nodes/node_modules/n8n-nodes-puppeteer"
-  if [ -f "$PUPPETEER_PATH/package.json" ]; then
-    PUPPETEER_VERSION=$(node -p "require('$PUPPETEER_PATH/package.json').version")
-    echo "n8n-nodes-puppeteer version: $PUPPETEER_VERSION"
-    CORE_PUPPETEER_VERSION=$(cd "$PUPPETEER_PATH" && node -e "try { const v = require('puppeteer/package.json').version; console.log(v); } catch(e) { console.log('not found'); }")
-    echo "Puppeteer core version: $CORE_PUPPETEER_VERSION"
-  else
-    echo "n8n-nodes-puppeteer: not installed"
-  fi
-
-  echo "Puppeteer executable path: $PUPPETEER_EXECUTABLE_PATH"
   echo "Custom nodes path: $N8N_CUSTOM_EXTENSIONS"
   echo "----------------------------------------"
 }
