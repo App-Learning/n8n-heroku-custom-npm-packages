@@ -9,6 +9,8 @@ USER root
 
 WORKDIR /home/node/packages/cli
 
+RUN apk add --no-cache graphicsmagick
+
 # --- Install custom npm packages ---
 RUN pnpm install jsdom \
     && pnpm install node-fetch
