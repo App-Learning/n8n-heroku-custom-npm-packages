@@ -1,4 +1,4 @@
-ARG N8N_VERSION=2.21.0
+ARG N8N_VERSION=latest
 FROM n8nio/n8n:${N8N_VERSION}
 
 # n8n's modern Alpine image removes apk-tools; copy minimal apk bits from Alpine.
